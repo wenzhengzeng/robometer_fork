@@ -145,10 +145,10 @@ def load_frames_from_npz(npz_filepath: str) -> np.ndarray:
     # If path is relative, prepend ROBOMETER_PROCESSED_DATASETS_PATH
     if not os.path.isabs(npz_filepath):
         processed_root = os.environ.get("ROBOMETER_PROCESSED_DATASETS_PATH", "")
-        # Normalize: strip processed_datasets when env points to repo root
-        processed_root = processed_root.replace("processed_datasets", "")
         if processed_root:
-            npz_filepath = os.path.join(processed_root, npz_filepath)
+            # Strip leading "./" and "processed_datasets/" since the env var already points there
+            rel = npz_filepath.removeprefix("./").removeprefix("processed_datasets/")
+            npz_filepath = os.path.join(processed_root, rel)
 
     if not os.path.exists(npz_filepath):
         raise ValueError(f"NPZ file not found: {npz_filepath}")
@@ -180,11 +180,9 @@ def load_embeddings_from_path(embeddings_path: str) -> torch.Tensor:
     # If path is relative, prepend ROBOMETER_PROCESSED_DATASETS_PATH
     if not os.path.isabs(embeddings_path):
         processed_root = os.environ.get("ROBOMETER_PROCESSED_DATASETS_PATH", "")
-        # Normalize: strip processed_datasets when env points to repo root
-        processed_root = processed_root.replace("processed_datasets/", "")
-        processed_root = processed_root.replace("processed_datasets", "")
         if processed_root:
-            embeddings_path = os.path.join(processed_root, embeddings_path)
+            rel = embeddings_path.removeprefix("./").removeprefix("processed_datasets/")
+            embeddings_path = os.path.join(processed_root, rel)
 
     with open(embeddings_path, "rb") as f:
         embeddings_data = torch.load(f, map_location="cpu")

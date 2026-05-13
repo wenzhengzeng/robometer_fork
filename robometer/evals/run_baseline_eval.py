@@ -75,6 +75,17 @@ from robometer.evals.compile_results import (
     run_confusion_matrix_eval,
 )
 
+
+import debugpy
+try:
+    # 5678 is the default attach port in the VS Code debug configurations. Unless a host and port are specified, host defaults to 127.0.0.1
+    debugpy.listen(("localhost", 9503))
+    print("Waiting for debugger attach")
+    debugpy.wait_for_client()
+except Exception as e:
+    pass
+
+
 logger = get_logger()
 
 
@@ -411,6 +422,7 @@ def process_batched_rbm_samples(
                     "partial_success": traj.partial_success,
                     "target_progress": np.array(traj.target_progress),
                     "quality_label": traj.quality_label,
+                    "original_sampled_index": traj.original_sampled_index,
                 }
                 results.append(result)
 
